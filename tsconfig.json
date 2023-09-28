@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "lib": [
+      "es2019",
+      "es2020.promise",
+      "es2020.bigint",
+      "es2020.string",
+      "DOM"
+    ],
+    "module": "commonjs",
+    "target": "ES6",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "declaration": true,
+    "types": [
+      "yargs"
+    ]
+  },
+  "include": [
+    "plugin/**/*",
+    "shared/**/*",
+    "bin/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/**/*"
+  ]
+}
