@@ -44,16 +44,7 @@ module.exports = ALL_TEMPLATE.map((templateType) => ({
       babel({
         babelHelpers: "bundled",
         presets: [
-          [
-            "@babel/preset-env",
-            {
-              // Target browsers are specified in .browserslistrc
-
-              modules: false,
-              useBuiltIns: "usage",
-              debug: true,
-            },
-          ],
+          ["@babel/preset-env"],
           [
             "@babel/preset-react",
             {
@@ -69,6 +60,14 @@ module.exports = ALL_TEMPLATE.map((templateType) => ({
           ["@babel/plugin-proposal-private-methods", { loose: true }],
         ],
       }),
+      svg({
+        base64: true,
+      }),
+      postcss({
+        extract: true,
+        modules: true,
+        plugins: [require("postcss-icss-values"), require("autoprefixer"), require("cssnano")()],
+      }),
       visualizer({
         title: `dev build ${templateType}`,
         filename: `stats.${templateType}${chooseExt(templateType)}`,
@@ -77,14 +76,6 @@ module.exports = ALL_TEMPLATE.map((templateType) => ({
         brotliSize: true,
         sourcemap: !!process.env.SOURCEMAP,
         open: !!process.env.OPEN,
-      }),
-      svg({
-        base64: true,
-      }),
-      postcss({
-        extract: true,
-        modules: true,
-        plugins: [require("postcss-icss-values"), require("autoprefixer"), require("cssnano")()],
       }),
     ],
   ],

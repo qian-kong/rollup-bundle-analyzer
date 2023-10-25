@@ -4,8 +4,7 @@ import path from "path";
 import { OutputBundle, Plugin, NormalizedOutputOptions, OutputOptions } from "rollup";
 import opn from "open";
 
-import { ModuleLengths, ModuleTree, ModuleTreeLeaf, VisualizerData } from "../shared/types";
-import { version } from "./version";
+import { ModuleLengths, ModuleTree, ModuleTreeLeaf } from "../shared/types";
 
 import { createGzipSizeGetter, createBrotliSizeGetter, SizeGetter } from "./compress";
 
@@ -15,6 +14,7 @@ import { addLinks, buildTree, mergeTrees } from "./data";
 import { getSourcemapModules } from "./sourcemap";
 import { renderTemplate } from "./render-template";
 import { createFilter, Filter } from "../shared/create-filter";
+import UglifyJS from "uglify-js";
 
 const WARN_SOURCEMAP_DISABLED =
   "rollup output configuration missing sourcemap = true. You should add output.sourcemap = true or disable sourcemap in this plugin";
@@ -174,12 +174,12 @@ export const visualizer = (
         code: string | null;
       }): Promise<ModuleLengths & { id: string }> => {
         const isCodeEmpty = code == null || code == "";
-
+        const miniCode = UglifyJS.minify(code!);
         const result = {
           id,
           gzipLength: isCodeEmpty ? 0 : await gzipSizeGetter(code),
           brotliLength: isCodeEmpty ? 0 : await brotliSizeGetter(code),
-          renderedLength: isCodeEmpty ? renderedLength : Buffer.byteLength(code, "utf-8"),
+          renderedLength: isCodeEmpty ? 0 : Buffer.byteLength(miniCode.code, "utf-8"),
         };
 
         return result;
@@ -220,7 +220,7 @@ export const visualizer = (
           );
 
           tree = buildTree(
-            { bundleId, ...ModuleLengths({ id: bundleId, renderedLength: 0, code: bundle.code }) },
+            { bundleId },
             moduleRenderInfo,
             mapper
           );
@@ -230,8 +230,7 @@ export const visualizer = (
               .filter(([id]) => filter(bundleId, id))
               .map(([id, { renderedLength, code }]) => ModuleLengths({ id, renderedLength, code }))
           );
-          const obj = await ModuleLengths({ id: bundleId, renderedLength: 0, code: bundle.code });
-          tree = buildTree({ bundleId, ...obj }, modules, mapper);
+          tree = buildTree({ bundleId }, modules, mapper);
         }
 
         if (tree.groups.length === 0) {

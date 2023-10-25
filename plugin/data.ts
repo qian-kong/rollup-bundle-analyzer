@@ -79,13 +79,13 @@ export const buildTree = (
   modules: Array<ModuleLengths & { id: string }>,
   mapper: ModuleMapper
 ): ModuleTree => {
-  const { bundleId, gzipLength, brotliLength, renderedLength } = ob;
+  const { bundleId } = ob;
   const tree: any = {
     label: bundleId,
     groups: [],
-    gzipSize: gzipLength,
-    parsedSize: brotliLength,
-    statSize: renderedLength,
+    gzipSize: 0,
+    parsedSize: 0,
+    statSize: 0,
     isAsset: true,
     cid: count++,
     isInitialByEntrypoint: {},
@@ -112,6 +112,10 @@ export const buildTree = (
 
   tree.groups = tree.groups.map((node: any) => {
     tree.cid = count++;
+    tree.gzipSize += node.gzipSize || 0;
+    tree.parsedSize += node.parsedSize || 0;
+    tree.statSize += node.statSize || 0;
+    tree.weight = tree.statSize;
     if (isModuleTree(node)) {
       return mergeSingleChildTrees(node);
     } else {
